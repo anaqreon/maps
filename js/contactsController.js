@@ -90,6 +90,10 @@ ContactsController.prototype = {
             var groupName = $(this).parent().parent().parent().parent().attr('contact-group');
             that.zoomOnGroup(groupName);
         });
+        // zoom to all contacts
+        $('body').on('click', '#zoom-all-contact-groups', function(e) {
+            that.zoomOnGroup(null);
+        });
         // delete address
         $('body').on('click', '.deleteContactAddress', function(e) {
             var ul = $(this).parent().parent();
@@ -231,6 +235,30 @@ ContactsController.prototype = {
                             maxLng = lng;
                         }
                     }
+                } else if (groupName === null) {
+                  lat = this.contactMarkers[i].data.lat;
+                  lng = this.contactMarkers[i].data.lng;
+                  if (minLat === null) {
+                    minLat = lat;
+                    maxLat = lat;
+                    minLng = lng;
+                    maxLng = lng;
+                  }
+                  else {
+                    if (lat < minLat) {
+                      minLat = lat;
+                    }
+                    if (lat > maxLat) {
+                      maxLat = lat;
+                    }
+                    if (lng < minLng) {
+                      minLng = lng;
+                    }
+                    if (lng > maxLng) {
+                      maxLng = lng;
+                    }
+                  }
+
                 }
             }
         }
