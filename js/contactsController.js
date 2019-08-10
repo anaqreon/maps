@@ -207,8 +207,16 @@ ContactsController.prototype = {
         var maxLat = null;
         var minLng = null;
         var maxLng = null;
-        if (this.contactMarkers.length > 0) {
-
+        var b = null; // LatLng bounds defining zoom
+        // If the groupName is null, zoom to fit all visible contact markers
+        if (groupName === null) {
+            var b = this.contactLayer.getBounds();
+        // If a group is specified (including the set of contacts that have no assigned group),
+        // determine the bounds and zoom.
+        // TODO: Consider automatically enabling group visibility when this group
+        // zoom occurs, because currently it will zoom to the group even if the group
+        // is not visible.
+        } else if (this.contactMarkers.length > 0) {
             for (var i=0; i < this.contactMarkers.length; i++) {
                 // if contact is in the group we zoom on
                 if ((groupName === '0' && this.contactMarkers[i].data.groups.length === 0)
@@ -235,38 +243,15 @@ ContactsController.prototype = {
                             maxLng = lng;
                         }
                     }
-                } else if (groupName === null) {
-                  lat = this.contactMarkers[i].data.lat;
-                  lng = this.contactMarkers[i].data.lng;
-                  if (minLat === null) {
-                    minLat = lat;
-                    maxLat = lat;
-                    minLng = lng;
-                    maxLng = lng;
-                  }
-                  else {
-                    if (lat < minLat) {
-                      minLat = lat;
-                    }
-                    if (lat > maxLat) {
-                      maxLat = lat;
-                    }
-                    if (lng < minLng) {
-                      minLng = lng;
-                    }
-                    if (lng > maxLng) {
-                      maxLng = lng;
-                    }
-                  }
-
                 }
             }
         }
-        if (minLat !== 0) {
+        if (minLat !== null) {
             var b = L.latLngBounds(L.latLng(minLat, minLng), L.latLng(maxLat, maxLng));
-            this.map.fitBounds(b, {padding: [30, 30]});
         }
-        else {
+        if (b !== null) {
+            this.map.fitBounds(b, {padding: [30, 30]});
+        } else {
             OC.Notification.showTemporary(t('maps', 'There are no contacts to zoom on'));
         }
     },
